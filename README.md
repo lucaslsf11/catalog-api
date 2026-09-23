@@ -141,3 +141,15 @@ Com a aplicação em execução, acesse a documentação interativa para consult
 | `POST` | `/api/v1/products` | Cadastra um novo produto | `201 Created` |
 | `PUT` | `/api/v1/products/{id}` | Atualiza os dados de um produto | `200 OK` |
 | `DELETE` | `/api/v1/products/{id}` | Remove um produto | `204 No Content` |
+
+---
+
+## Observabilidade e Monitoramento (Spring Boot Actuator)
+
+A aplicação expõe métricas operacionais e indicadores de integridade em tempo real:
+
+| Endpoint | Descrição | Formato / Resposta |
+|---|---|---|
+| `GET /actuator/health` | Status de saúde da aplicação, banco relacional e disco | JSON detalhado (`UP`/`DOWN`) |
+| `GET /actuator/info` | Resumo legível de consumo de heap, tempo de atividade e JVM | JSON humanizado customizado |
+| `GET /actuator/metrics` | Catálogo completo de métricas de telemetria coletadas | Lista de métricas da JVM |
