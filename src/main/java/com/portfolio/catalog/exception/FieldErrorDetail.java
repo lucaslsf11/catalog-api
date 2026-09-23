@@ -1,0 +1,7 @@
+package com.portfolio.catalog.exception;
+
+public record FieldErrorDetail(
+        String field,
+        String message
+) {
+}
