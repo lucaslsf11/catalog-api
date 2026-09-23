@@ -5,6 +5,7 @@ import com.portfolio.catalog.dto.ProductResponseDTO;
 import com.portfolio.catalog.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> findAll(
+            @ParameterObject
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<ProductResponseDTO> products = productService.findAll(pageable);
         return ResponseEntity.ok(products);
@@ -38,6 +40,7 @@ public class ProductController {
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<Page<ProductResponseDTO>> findByCategory(
             @PathVariable Long categoryId,
+            @ParameterObject
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<ProductResponseDTO> products = productService.findByCategory(categoryId, pageable);
         return ResponseEntity.ok(products);
