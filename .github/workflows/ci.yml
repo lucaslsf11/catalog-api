@@ -26,3 +26,6 @@ jobs:
 
       - name: Build and run automated tests
         run: ./mvnw clean verify
+
+      - name: Verify Docker build
+        run: docker build -t catalog-api:latest .

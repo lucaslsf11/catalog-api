@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: catalog-postgres
+    environment:
+      POSTGRES_DB: catalogdb
+      POSTGRES_USER: catalog_user
+      POSTGRES_PASSWORD: catalog_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - catalog-network
+
+  catalog-api:
+    build: .
+    container_name: catalog-api-app
+    restart: on-failure
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: catalogdb
+      DB_USERNAME: catalog_user
+      DB_PASSWORD: catalog_pass
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8080:8080"
+    networks:
+      - catalog-network
+
+volumes:
+  postgres_data:
+
+networks:
+  catalog-network:
+    driver: bridge
