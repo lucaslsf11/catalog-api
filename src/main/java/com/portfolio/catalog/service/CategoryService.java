@@ -7,6 +7,8 @@ import com.portfolio.catalog.exception.ResourceNotFoundException;
 import com.portfolio.catalog.model.Category;
 import com.portfolio.catalog.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    @Cacheable(value = "categories")
     @Transactional(readOnly = true)
     public List<CategoryResponseDTO> findAll() {
         return categoryRepository.findAll()
@@ -32,6 +35,7 @@ public class CategoryService {
         return new CategoryResponseDTO(category);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public CategoryResponseDTO create(CategoryRequestDTO dto) {
         if (categoryRepository.existsByNameIgnoreCase(dto.name())) {
@@ -46,6 +50,7 @@ public class CategoryService {
         return new CategoryResponseDTO(category);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public CategoryResponseDTO update(Long id, CategoryRequestDTO dto) {
         Category category = findEntityById(id);
@@ -63,6 +68,7 @@ public class CategoryService {
         return new CategoryResponseDTO(category);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public void delete(Long id) {
         Category category = findEntityById(id);

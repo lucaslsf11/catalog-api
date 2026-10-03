@@ -12,6 +12,7 @@ API RESTful desenvolvida com **Java 21** e **Spring Boot 3**, estruturada sob o 
 - **Spring Data JPA & Hibernate** (Persistência e Mapeamento Objeto-Relacional)
 - **H2 In-Memory Database** (Banco relacional em memória com console web ativo para desenvolvimento)
 - **PostgreSQL 16** (Banco relacional configurado para execução via container)
+- **Redis 7 & Spring Cache** (Banco NoSQL chave-valor para cache distribuído com `@Cacheable` e `@CacheEvict`)
 - **Bean Validation (Hibernate Validator)** (Validação declarativa de entrada de dados)
 - **Java Records** (DTOs imutáveis para transferência de dados de alto desempenho)
 - **SpringDoc OpenAPI / Swagger UI** (Documentação interativa e testes de endpoints)
@@ -21,6 +22,16 @@ API RESTful desenvolvida com **Java 21** e **Spring Boot 3**, estruturada sob o 
 - **GitHub Actions** (Esteira de Integração Contínua automatizada para validação de build, testes e imagem Docker)
 - **Lombok** (Produtividade e redução de código boilerplate)
 - **Apache Maven** (Gerenciamento de dependências e build)
+
+---
+
+## Estratégia de Cache (Redis & Spring Cache)
+
+Para otimizar o tempo de resposta e poupar consultas repetitivas ao banco relacional, a API implementa cache na camada de serviços para dados de alta leitura e baixa mutabilidade:
+
+- **Cache Hit / Cache Miss (`@Cacheable`):** As consultas de listagem de categorias (`GET /api/v1/categories`) buscam os dados diretamente na memória do Redis a partir da segunda requisição, eliminando a execução de queries SQL pelo Hibernate.
+- **Invalidação de Cache (`@CacheEvict`):** Operações de mutação (`POST`, `PUT`, `DELETE` de categorias) disparam a limpeza imediata das chaves em cache (`allEntries = true`), garantindo consistência estrita de dados (*cache consistency*).
+- **Serialização de DTOs:** Uso de `Serializable` nos Java Records para persistência binária otimizada em memória.
 
 ---
 
@@ -126,11 +137,11 @@ Com a aplicação em execução, acesse a documentação interativa para consult
 ### Categorias (`/api/v1/categories`)
 | Método | Endpoint | Descrição | Status Sucesso |
 |---|---|---|---|
-| `GET` | `/api/v1/categories` | Lista todas as categorias cadastradas | `200 OK` |
+| `GET` | `/api/v1/categories` | Lista todas as categorias cadastradas *(com suporte a Cache Redis)* | `200 OK` |
 | `GET` | `/api/v1/categories/{id}` | Busca os detalhes de uma categoria por ID | `200 OK` |
-| `POST` | `/api/v1/categories` | Cadastra uma nova categoria | `201 Created` |
-| `PUT` | `/api/v1/categories/{id}` | Atualiza uma categoria existente | `200 OK` |
-| `DELETE` | `/api/v1/categories/{id}` | Remove uma categoria | `204 No Content` |
+| `POST` | `/api/v1/categories` | Cadastra uma nova categoria *(invalida o cache)* | `201 Created` |
+| `PUT` | `/api/v1/categories/{id}` | Atualiza uma categoria existente *(invalida o cache)* | `200 OK` |
+| `DELETE` | `/api/v1/categories/{id}` | Remove uma categoria *(invalida o cache)* | `204 No Content` |
 
 ### Produtos (`/api/v1/products`)
 | Método | Endpoint | Descrição | Status Sucesso |

@@ -1,39 +1,39 @@
+version: '3.8'
+
 services:
-  postgres:
+  catalog-db:
     image: postgres:16-alpine
-    container_name: catalog-postgres
+    container_name: catalog-db
     environment:
       POSTGRES_DB: catalogdb
-      POSTGRES_USER: catalog_user
-      POSTGRES_PASSWORD: catalog_pass
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - catalog-network
+
+  catalog-cache:
+    image: redis:7-alpine
+    container_name: catalog-cache
+    ports:
+      - "6379:6379"
 
   catalog-api:
     build: .
-    container_name: catalog-api-app
-    restart: on-failure
+    container_name: catalog-api
     depends_on:
-      - postgres
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: catalogdb
-      DB_USERNAME: catalog_user
-      DB_PASSWORD: catalog_pass
-      SPRING_PROFILES_ACTIVE: prod
+      - catalog-db
+      - catalog-cache
     ports:
       - "8080:8080"
-    networks:
-      - catalog-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://catalog-db:5432/catalogdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgrespassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATA_REDIS_HOST: catalog-cache
+      SPRING_DATA_REDIS_PORT: 6379
 
 volumes:
   postgres_data:
-
-networks:
-  catalog-network:
-    driver: bridge
